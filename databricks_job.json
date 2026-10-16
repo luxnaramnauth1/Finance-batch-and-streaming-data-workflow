@@ -1,0 +1,50 @@
+{
+  "name": "finance_data_workflows",
+  "description": "Batch and streaming finance pipelines, fraud model, and reporting views",
+  "max_concurrent_runs": 1,
+  "queue": { "enabled": true },
+  "schedule": {
+    "quartz_cron_expression": "0 0 6 * * ?",
+    "timezone_id": "Indian/Mauritius",
+    "pause_status": "PAUSED"
+  },
+  "tasks": [
+    {
+      "task_key": "batch_pipeline",
+      "notebook_task": {
+        "notebook_path": "/Workspace/Users/<your-email>/finance_workflows/01_batch_pipeline",
+        "source": "WORKSPACE",
+        "base_parameters": { "catalog": "workspace", "schema": "finance_demo" }
+      }
+    },
+    {
+      "task_key": "streaming_pipeline",
+      "notebook_task": {
+        "notebook_path": "/Workspace/Users/<your-email>/finance_workflows/02_streaming_pipeline",
+        "source": "WORKSPACE",
+        "base_parameters": { "catalog": "workspace", "schema": "finance_demo" }
+      }
+    },
+    {
+      "task_key": "fraud_model",
+      "depends_on": [{ "task_key": "batch_pipeline" }],
+      "notebook_task": {
+        "notebook_path": "/Workspace/Users/<your-email>/finance_workflows/03_ai_fraud_model",
+        "source": "WORKSPACE",
+        "base_parameters": { "catalog": "workspace", "schema": "finance_demo" }
+      }
+    },
+    {
+      "task_key": "reporting_views",
+      "depends_on": [
+        { "task_key": "streaming_pipeline" },
+        { "task_key": "fraud_model" }
+      ],
+      "notebook_task": {
+        "notebook_path": "/Workspace/Users/<your-email>/finance_workflows/04_reporting",
+        "source": "WORKSPACE",
+        "base_parameters": { "catalog": "workspace", "schema": "finance_demo" }
+      }
+    }
+  ]
+}
